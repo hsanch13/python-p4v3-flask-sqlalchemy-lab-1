@@ -21,7 +21,31 @@ def index():
     return make_response(body, 200)
 
 # Add views here
+# show route -- display one thing in detail
+@app.route('/earthquakes/<int:id>')
+def earthquakes(id):
+    try: 
+        earthquake = Earthquake.query.get(id)
+        if not earthquake:
+            return {"message": f"Earthquake {id} not found."}, 404 # 404not found
+        else:
+            return earthquake.to_dict(), 200
+    except Exception as e:
+        return {"message": str(e)}, 400 #400 is crashed bc something went wrong 
 
+
+@app.route('/earthquakes/magnitude/<float:magnitude>')
+def magnitude(magnitude):
+    try:
+        earthquakes = Earthquake.query.filter(Earthquake.magnitude >= magnitude).all()
+        earthquakes_match = [earthquake.to_dict() for earthquake in earthquakes]
+        response = {
+            "count": len(earthquakes_match),
+            "quakes": earthquakes_match
+        }
+        return make_response(response, 200)
+    except Exception as e:
+        return {"message": str(e)}, 400
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
